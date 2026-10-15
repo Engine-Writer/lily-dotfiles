@@ -16,6 +16,8 @@ bash <(curl -s https://raw.githubusercontent.com/transicle/dotfiles/refs/heads/m
 ## Todo
 
 - Automatically setup Zen browser
+- Stop using Equicord from Flatpak
+- Fix the issue where spawning a floating window doesn't focus on it until you move your mouse
 
 ## Keybinds :3c
 
