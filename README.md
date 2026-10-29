@@ -28,7 +28,7 @@ bash -c 'set -o pipefail; curl -fsSL https://raw.githubusercontent.com/transicle
 | `Super + E` | Open File Manager (dolphin) |
 | `Super + B` | Open browser (Zen) |
 | `Super + D` | Open Discord (Equibop) |
-| `Super + I` | Open VS Code (Snap Store Edition) |
+| `Super + I` | Open VS Code (AUR binary) |
 | `Super + L` | Toggle App Launcher (ulauncher) |
 | `Super + Shift + S` | Screenshot (saves locally and to clipboard) |
 | `Super + Shift + D` | Screenshot Screen (saves locally and to clipboard) |

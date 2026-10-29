@@ -51,8 +51,8 @@ PACMAN_DEPS=(
 )
 
 AUR_DEPS=(
-    snapd
     ulauncher
+    visual-studio-code-bin
 )
 
 FLATPAK_DEPS=(
@@ -117,23 +117,6 @@ aur_install() {
 for pkg in "${AUR_DEPS[@]}"; do
     aur_install "$pkg"
 done
-
-run sudo systemctl enable --now snapd.socket
-
-if [[ ! -e /snap && ! -L /snap ]]; then
-    run sudo ln -s /var/lib/snapd/snap /snap
-fi
-
-if sudo snap list core >/dev/null 2>&1; then
-    run sudo snap refresh core
-else
-    run sudo snap install core
-fi
-if sudo snap list code >/dev/null 2>&1; then
-    run sudo snap refresh code
-else
-    run sudo snap install code --classic
-fi
 
 if ! command -v flatpak >/dev/null 2>&1; then
     run sudo pacman -S --needed --noconfirm flatpak
