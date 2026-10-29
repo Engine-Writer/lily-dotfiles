@@ -53,7 +53,6 @@ PACMAN_DEPS=(
 AUR_DEPS=(
     snapd
     ulauncher
-    typescript-language-server
 )
 
 FLATPAK_DEPS=(
@@ -62,7 +61,9 @@ FLATPAK_DEPS=(
 
 run sudo pacman -S --needed --noconfirm "${PACMAN_DEPS[@]}"
 
-run npm install -g typescript typescript-language-server
+npm_prefix="$HOME/.local"
+export PATH="$npm_prefix/bin:$PATH"
+run npm install --global --prefix "$npm_prefix" typescript typescript-language-server
 
 ZSH_PATH=$(command -v zsh || true)
 
