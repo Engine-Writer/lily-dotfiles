@@ -2,9 +2,11 @@
 set -Eeuo pipefail
 
 repo_root=""
-source_dir=$(dirname -- "${BASH_SOURCE[0]}")
-if [[ -d "$source_dir/scripts" ]]; then
-	repo_root=$(cd -- "$source_dir" && pwd)
+if [[ -f "$0" ]]; then
+	source_dir=$(dirname -- "$0")
+	if [[ -d "$source_dir/scripts" ]]; then
+		repo_root=$(cd -- "$source_dir" && pwd)
+	fi
 fi
 
 if [[ -z "$repo_root" ]]; then
