@@ -1,22 +1,8 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -Eeuo pipefail
 
-KITTY="$HOME/.config/kitty"
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+source "$SCRIPT_DIR/../lib.sh"
+REPO_ROOT=$(cd -- "$SCRIPT_DIR/../.." && pwd)
 
-if [[ -d "$KITTY" ]]; then
-    n=0
-    DEST="$HOME/.config/kitty.old"
-    while [[ -d "$DEST" ]]; do
-        n=$((n + 1))
-        DEST="$HOME/.config/kitty-$n.old"
-    done
-    mv "$KITTY" "$DEST"
-fi
-
-TMPDIR=$(mktemp -d)
-git clone --depth=1 https://github.com/transicle/dotfiles "$TMPDIR/dotfiles"
-mkdir -p "$KITTY"
-cp -r "$TMPDIR/dotfiles/kitty/." "$KITTY/"
-rm -rf "$TMPDIR"
-
-echo "Installed to $KITTY"
+install_config "$REPO_ROOT/kitty" "$HOME/.config/kitty"

@@ -1,22 +1,8 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -Eeuo pipefail
 
-WAYBAR="$HOME/.config/waybar"
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+source "$SCRIPT_DIR/../lib.sh"
+REPO_ROOT=$(cd -- "$SCRIPT_DIR/../.." && pwd)
 
-if [[ -d "$WAYBAR" ]]; then
-    n=0
-    DEST="$HOME/.config/waybar.old"
-    while [[ -d "$DEST" ]]; do
-        n=$((n + 1))
-        DEST="$HOME/.config/waybar-$n.old"
-    done
-    mv "$WAYBAR" "$DEST"
-fi
-
-TMPDIR=$(mktemp -d)
-git clone --depth=1 https://github.com/transicle/dotfiles "$TMPDIR/dotfiles"
-mkdir -p "$WAYBAR"
-cp -r "$TMPDIR/dotfiles/waybar/." "$WAYBAR/"
-rm -rf "$TMPDIR"
-
-echo "Installed to $WAYBAR"
+install_config "$REPO_ROOT/waybar" "$HOME/.config/waybar"

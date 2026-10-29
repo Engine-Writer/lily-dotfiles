@@ -38,6 +38,11 @@ blocked=0
 for override in "${overrides[@]}"; do
     [[ -f $override ]] || continue
 
+    if [[ $EUID -ne 0 && ( $override == /etc/* || $override == /var/lib/flatpak/* ) ]]; then
+        printf 'Skipping system override without root permissions: %s\n' "$override"
+        continue
+    fi
+
     resolved=$(readlink -f -- "$override" 2>/dev/null) || resolved=$override
     [[ -n ${seen[$resolved]+x} ]] && continue
     seen[$resolved]=1

@@ -1,11 +1,23 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -Eeuo pipefail
 
-REPO="https://raw.githubusercontent.com/transicle/dotfiles/refs/heads/main"
+repo_root=""
+source_dir=$(dirname -- "${BASH_SOURCE[0]}")
+if [[ -d "$source_dir/scripts" ]]; then
+	repo_root=$(cd -- "$source_dir" && pwd)
+fi
 
-bash <(curl -s "$REPO/scripts/removers/remove-hyprpaper.sh")
-bash <(curl -s "$REPO/scripts/removers/remove-hypr.sh")
-bash <(curl -s "$REPO/scripts/removers/remove-kitty.sh")
-bash <(curl -s "$REPO/scripts/removers/remove-waybar.sh")
-bash <(curl -s "$REPO/scripts/removers/remove-helix.sh")
-bash <(curl -s "$REPO/scripts/removers/remove-zshrc.sh")
+if [[ -z "$repo_root" ]]; then
+	temp_dir=$(mktemp -d)
+	trap 'rm -rf -- "$temp_dir"' EXIT
+	git clone --depth=1 https://github.com/transicle/dotfiles "$temp_dir/dotfiles"
+	repo_root="$temp_dir/dotfiles"
+fi
+
+bash "$repo_root/scripts/removers/remove-hyprpaper.sh"
+bash "$repo_root/scripts/removers/remove-hypr.sh"
+bash "$repo_root/scripts/removers/remove-kitty.sh"
+bash "$repo_root/scripts/removers/remove-waybar.sh"
+bash "$repo_root/scripts/removers/remove-helix.sh"
+bash "$repo_root/scripts/removers/remove-zshrc.sh"
+bash "$repo_root/scripts/removers/remove-starship.sh"

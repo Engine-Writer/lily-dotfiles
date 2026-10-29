@@ -1,9 +1,9 @@
-#!/bin/bash
-set -u
+#!/usr/bin/env bash
+set -Eeuo pipefail
 
 run() {
-    echo "==> $*"
-    "$@" || echo "FAILED: $*"
+    printf '==> %s\n' "$*"
+    "$@"
 }
 
 PACMAN_DEPS=(
@@ -36,9 +36,10 @@ PACMAN_DEPS=(
     jq
     git
     xdg-user-dirs
-    nvim
+    neovim
     vim
     zsh
+    starship
     helix
     fastfetch
     pyright
@@ -64,13 +65,13 @@ run sudo pacman -S --needed --noconfirm "${PACMAN_DEPS[@]}"
 
 run npm install -g typescript typescript-language-server
 
-ZSH_PATH="$(command -v zsh)"
+ZSH_PATH=$(command -v zsh || true)
 
 if [[ -n "$ZSH_PATH" ]]; then
     if ! grep -qx "$ZSH_PATH" /etc/shells; then
-        echo "$ZSH_PATH" | sudo tee -a /etc/shells >/dev/null
+        printf '%s\n' "$ZSH_PATH" | sudo tee -a /etc/shells >/dev/null
     fi
-    if [[ "$SHELL" != "$ZSH_PATH" ]]; then
+    if [[ "${SHELL:-}" != "$ZSH_PATH" ]]; then
         run chsh -s "$ZSH_PATH"
     else
         echo "==> zsh is already the default shell"
@@ -78,6 +79,15 @@ if [[ -n "$ZSH_PATH" ]]; then
 else
     echo "==> zsh installation failed"
 fi
+
+build_aur_pkg() (
+    local pkg="$1"
+    local tmpdir
+    tmpdir=$(mktemp -d)
+    trap 'rm -rf -- "$tmpdir"' EXIT
+    run git clone "https://aur.archlinux.org/$pkg.git" "$tmpdir/$pkg"
+    (cd -- "$tmpdir/$pkg" && run makepkg -si --noconfirm)
+)
 
 AUR_HELPER=""
 
@@ -88,10 +98,7 @@ elif command -v paru >/dev/null; then
 else
     echo "==> No AUR helper found, bootstrapping yay"
     run sudo pacman -S --needed --noconfirm base-devel
-    TMPDIR=$(mktemp -d)
-    run git clone https://aur.archlinux.org/yay.git "$TMPDIR/yay"
-    (cd "$TMPDIR/yay" && run makepkg -si --noconfirm)
-    rm -rf "$TMPDIR"
+    build_aur_pkg yay
     if command -v yay >/dev/null; then
         AUR_HELPER="yay"
     fi
@@ -103,50 +110,52 @@ aur_install() {
         run "$AUR_HELPER" -S --needed --noconfirm "$pkg"
     else
         echo "==> No AUR helper available, building $pkg manually"
-        local tmpdir
-        tmpdir=$(mktemp -d)
-        run git clone "https://aur.archlinux.org/$pkg.git" "$tmpdir/$pkg"
-        (cd "$tmpdir/$pkg" && run makepkg -si --noconfirm)
-        rm -rf "$tmpdir"
+        build_aur_pkg "$pkg"
     fi
 }
 
 for pkg in "${AUR_DEPS[@]}"; do
-    if ! command -v "$pkg" >/dev/null 2>&1; then
-        aur_install "$pkg"
-    else
-        echo "==> $pkg already installed, skipping"
-    fi
+    aur_install "$pkg"
 done
 
 run sudo systemctl enable --now snapd.socket
 
-if [ ! -e /snap ]; then
+if [[ ! -e /snap && ! -L /snap ]]; then
     run sudo ln -s /var/lib/snapd/snap /snap
 fi
 
-run sudo snap install core
-run sudo snap refresh core
-run sudo snap install code --classic
+if sudo snap list core >/dev/null 2>&1; then
+    run sudo snap refresh core
+else
+    run sudo snap install core
+fi
+if sudo snap list code >/dev/null 2>&1; then
+    run sudo snap refresh code
+else
+    run sudo snap install code --classic
+fi
 
-if ! command -v flatpak >/dev/null; then
+if ! command -v flatpak >/dev/null 2>&1; then
     run sudo pacman -S --needed --noconfirm flatpak
 fi
 
-run flatpak remote-add --if-not-exists flathub \
+run flatpak remote-add --user --if-not-exists flathub \
     https://flathub.org/repo/flathub.flatpakrepo
 
 for pkg in "${FLATPAK_DEPS[@]}"; do
-    run flatpak install --noninteractive flathub "$pkg"
+    run flatpak install --user --noninteractive --or-update flathub "$pkg"
 done
 
-echo "==> Installing Zen Browser"
-curl -fsSL https://github.com/zen-browser/updates-server/raw/refs/heads/main/install.sh | sh
+printf '==> Installing Zen Browser\n'
+zen_script=$(mktemp)
+trap 'rm -f -- "$zen_script"' EXIT
+run curl -fsSL -o "$zen_script" https://github.com/zen-browser/updates-server/raw/refs/heads/main/install.sh
+run sh "$zen_script"
 
-mkdir -p ~/Downloads
-xdg-user-dirs-update
-run flatpak override --user --filesystem=xdg-download
+mkdir -p -- "$HOME/Downloads"
+run xdg-user-dirs-update
+run flatpak override --user --filesystem=xdg-download org.equicord.equibop
 
-echo "==> Setup complete"
-echo "==> Default shell: $ZSH_PATH"
-echo "==> Log out and back in for zsh to apply"
+printf '==> Setup complete\n'
+printf '==> Default shell: %s\n' "$ZSH_PATH"
+printf '==> Log out and back in for zsh to apply\n'

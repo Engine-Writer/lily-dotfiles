@@ -1,22 +1,8 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -Eeuo pipefail
 
-HELIX="$HOME/.config/helix"
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+source "$SCRIPT_DIR/../lib.sh"
+REPO_ROOT=$(cd -- "$SCRIPT_DIR/../.." && pwd)
 
-if [[ -d "$HELIX" ]]; then
-    n=0
-    DEST="$HOME/.config/helix.old"
-    while [[ -d "$DEST" ]]; do
-        n=$((n + 1))
-        DEST="$HOME/.config/helix-$n.old"
-    done
-    mv "$HELIX" "$DEST"
-fi
-
-TMPDIR=$(mktemp -d)
-git clone --depth=1 https://github.com/transicle/dotfiles "$TMPDIR/dotfiles"
-mkdir -p "$HELIX"
-cp -r "$TMPDIR/dotfiles/helix/." "$HELIX/"
-rm -rf "$TMPDIR"
-
-echo "Installed to $HELIX"
+install_config "$REPO_ROOT/helix" "$HOME/.config/helix"

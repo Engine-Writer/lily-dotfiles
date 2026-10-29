@@ -5,19 +5,18 @@
 
 **Install**
 ```sh
-bash <(curl -s https://raw.githubusercontent.com/transicle/dotfiles/refs/heads/main/download.sh)
+bash -c 'set -o pipefail; curl -fsSL https://raw.githubusercontent.com/transicle/dotfiles/refs/heads/main/download.sh | bash'
 ```
 
 **Restore Your Old Config**
 ```sh
-bash <(curl -s https://raw.githubusercontent.com/transicle/dotfiles/refs/heads/main/remove.sh)
+bash -c 'set -o pipefail; curl -fsSL https://raw.githubusercontent.com/transicle/dotfiles/refs/heads/main/remove.sh | bash'
 ```
 
 ## Todo
 
 - Automatically setup Zen browser
 - Stop using Equicord from Flatpak
-- Fix the issue where spawning a floating window doesn't focus on it until you move your mouse
 
 ## Keybinds :3c
 

@@ -1,28 +1,7 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -Eeuo pipefail
 
-ZSHRC="$HOME/.zshrc"
-LATEST=""
-LATEST_N=-1
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+source "$SCRIPT_DIR/../lib.sh"
 
-if [[ -e "$HOME/.zshrc.old" || -L "$HOME/.zshrc.old" ]]; then
-    LATEST="$HOME/.zshrc.old"
-fi
-
-for f in "$HOME"/.zshrc-*.old; do
-    [[ -e "$f" || -L "$f" ]] || continue
-    n=$(basename "$f" | grep -oP '\d+(?=\.old)')
-    if [[ "$n" -gt "$LATEST_N" ]]; then
-        LATEST_N="$n"
-        LATEST="$f"
-    fi
-done
-
-if [[ -z "$LATEST" ]]; then
-    echo "No backup found."
-    exit 1
-fi
-
-rm -f "$ZSHRC"
-mv "$LATEST" "$ZSHRC"
-echo "Restored from $LATEST"
+restore_config "$HOME/.zshrc"
