@@ -9,6 +9,7 @@ local BINDS = {
     {MAIN_MOD .. " + I",          hl.dsp.exec_cmd("code")},
     {MAIN_MOD .. " + L",          hl.dsp.exec_cmd("ulauncher-toggle --hide-window --no-window-shadow")},
     {MAIN_MOD .. " + SHIFT + S",  hl.dsp.exec_cmd('grim -g "$(slurp)" - | tee ~/Pictures/screenshot-$(date +%s).png | wl-copy')},
+    {MAIN_MOD .. " + SHIFT + D",  hl.dsp.exec_cmd('grim -g "$(slurp -o)" - | tee ~/Pictures/screenshot-$(date +%s).png | wl-copy')},
 
     -- Window
     {MAIN_MOD .. " + C",          hl.dsp.window.close()},
