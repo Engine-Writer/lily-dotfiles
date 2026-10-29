@@ -46,7 +46,6 @@ PACMAN_DEPS=(
     clang
     lua-language-server
     rust-analyzer
-    rustup
     nodejs
     npm
 )
