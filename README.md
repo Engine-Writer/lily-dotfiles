@@ -32,6 +32,7 @@ bash <(curl -s https://raw.githubusercontent.com/transicle/dotfiles/refs/heads/m
 | `Super + I` | Open VS Code (Snap Store Edition) |
 | `Super + L` | Toggle App Launcher (ulauncher) |
 | `Super + Shift + S` | Screenshot (saves locally and to clipboard) |
+| `Super + Shift + D` | Screenshot Screen (saves locally and to clipboard) |
 
 ### Window
 
